@@ -20,6 +20,34 @@ export default function Routes() {
           component={AuthScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="cadastro"
+          component={Cadastro}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="main"
+          component={Main}
+          options={{
+            title: "HOME",
+            headerTitleAlign: "center",
+            headerStyle: {
+              backgroundColor: "#656cee",
+              borderBottomLeftRadius: 20,
+              borderBottomRightRadius: 20,
+            },
+            headerTitleStyle: {
+              fontFamily: Montserrat_600SemiBold,
+              fontSize: 16,
+              color: "#fff",
+            },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

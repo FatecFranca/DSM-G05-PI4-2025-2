@@ -1,13 +1,5 @@
-import React, { useState } from "react";
 import { useFonts, Montserrat_400Regular, Montserrat_700Bold, Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions
-} from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 const screenWidth = Dimensions.get('window').width;
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,7 +10,7 @@ const AuthScreen = () => {
     Montserrat_600SemiBold,
     Montserrat_700Bold,
   });
-  
+
   const navigation = useNavigation();
 
   if (!fontsLoaded) return null;
