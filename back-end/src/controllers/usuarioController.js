@@ -6,20 +6,21 @@ const controller = {}
 
 controller.create = async function (req, res) {
   try {
-    const { nome, email, senha, tipo } = req.body;
+    const { nome, nomeUsuario, email, senha, tipo } = req.body;
     const senhaHash = await bcrypt.hash(senha, 10);
 
     const usuario = await prisma.usuario.create({
-      data: { nome, email, senha: senhaHash, tipo },
+      data: { nome, nomeUsuario, email, senha: senhaHash, tipo },
     });
 
     res.status(201).json({
       nome: usuario.nome,
+      nomeUsuario: usuario.nomeUsuario,
       email: usuario.email,
       tipo: usuario.tipo
     });
   } catch (err) {
-    console.err('Erro ao criar usuário:', err);
+    console.error('Erro ao criar usuário:', err);
     if (err.code === 'P2002') {
       return res.status(400).json({ err: 'Email já cadastrado' });
     }
