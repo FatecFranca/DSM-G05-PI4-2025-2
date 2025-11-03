@@ -1,0 +1,302 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API - Sistema de Portão de Condomínio Inteligente",
+    "version": "1.2.0",
+    "description": "API RESTful para controle de acesso de veículos e usuários em condomínio. Inclui autenticação JWT e rotas protegidas."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Servidor local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "José Oliveira" },
+          "email": { "type": "string", "example": "jose@email.com" },
+          "tipo": { "type": "string", "enum": ["morador", "porteiro", "admin"], "example": "morador" }
+        }
+      },
+      "Veiculo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "modelo": { "type": "string", "example": "Fiat Argo" },
+          "cor": { "type": "string", "example": "Branco" },
+          "placa": { "type": "string", "example": "ABC-1234" },
+          "usuarioId": { "type": "integer", "example": 2 },
+          "usuario": { "$ref": "#/components/schemas/Usuario" }
+        }
+      },
+      "Acesso": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 5 },
+          "placa": { "type": "string", "example": "ABC-1234" },
+          "tipo": { "type": "string", "enum": ["morador", "visitante", "serviço"], "example": "visitante" },
+          "motivo": { "type": "string", "example": "Entrega de encomenda" },
+          "horaEntrada": { "type": "string", "format": "date-time", "example": "2025-11-01T14:00:00Z" },
+          "horaSaida": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "usuario": { "$ref": "#/components/schemas/Usuario" },
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Usuários", "description": "Gerenciamento de usuários" },
+    { "name": "Auth", "description": "Autenticação e login" },
+    { "name": "Veículos", "description": "Gerenciamento de veículos" },
+    { "name": "Acessos", "description": "Controle de entradas e saídas de veículos" }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Realizar login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "livia@email.com" },
+                  "senha": { "type": "string", "example": "123456" }
+                },
+                "required": ["email", "senha"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso. Retorna o usuário e o token JWT.",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } }
+            }
+          },
+          "401": { "description": "Senha incorreta" },
+          "404": { "description": "Usuário não encontrado" }
+        }
+      }
+    },
+
+    "/usuarios": {
+      "get": {
+        "summary": "Listar todos os usuários",
+        "tags": ["Usuários"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Usuario" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar um novo usuário",
+        "tags": ["Usuários"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": { "type": "string" },
+                  "email": { "type": "string" },
+                  "senha": { "type": "string" },
+                  "tipo": { "type": "string", "enum": ["morador", "porteiro", "admin"] }
+                },
+                "required": ["nome", "email", "senha", "tipo"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuário criado com sucesso" },
+          "400": { "description": "E-mail já cadastrado" }
+        }
+      }
+    },
+
+    "/usuarios/{id}": {
+      "get": {
+        "summary": "Buscar usuário por ID",
+        "tags": ["Usuários"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário encontrado",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Usuario" } } }
+          },
+          "404": { "description": "Usuário não encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Atualizar dados do usuário",
+        "tags": ["Usuários"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": { "type": "string" },
+                  "email": { "type": "string" },
+                  "senha": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "204": { "description": "Usuário atualizado com sucesso" } }
+      },
+      "delete": {
+        "summary": "Excluir usuário",
+        "tags": ["Usuários"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "204": { "description": "Usuário excluído com sucesso" } }
+      }
+    },
+
+    "/veiculos": {
+      "get": {
+        "summary": "Listar veículos",
+        "tags": ["Veículos"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de veículos com dados dos donos",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Veiculo" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar um novo veículo",
+        "tags": ["Veículos"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "modelo": { "type": "string" },
+                  "cor": { "type": "string" },
+                  "placa": { "type": "string" },
+                  "usuarioId": { "type": "integer" }
+                },
+                "required": ["modelo", "cor", "placa", "usuarioId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Veículo cadastrado com sucesso",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Veiculo" } } }
+          }
+        }
+      }
+    },
+
+    "/acessos": {
+      "get": {
+        "summary": "Listar registros de acesso",
+        "tags": ["Acessos"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de acessos retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Acesso" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Registrar entrada de veículo",
+        "tags": ["Acessos"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "placa": { "type": "string" },
+                  "tipo": { "type": "string", "enum": ["morador", "visitante", "serviço"] },
+                  "motivo": { "type": "string" }
+                },
+                "required": ["placa", "tipo"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entrada registrada com sucesso",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Acesso" } } }
+          }
+        }
+      }
+    },
+
+    "/acessos/{id}/saida": {
+      "patch": {
+        "summary": "Registrar saída de veículo",
+        "tags": ["Acessos"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "204": { "description": "Saída registrada com sucesso" },
+          "400": { "description": "Saída já registrada anteriormente" },
+          "404": { "description": "Registro de acesso não encontrado" }
+        }
+      }
+    }
+  }
+}
