@@ -6,16 +6,15 @@ const controller = {}
 
 controller.create = async function (req, res) {
   try {
-    const { nome, nomeUsuario, email, senha, tipo } = req.body;
+    const { nome, email, senha, tipo } = req.body;
     const senhaHash = await bcrypt.hash(senha, 10);
 
     const usuario = await prisma.usuario.create({
-      data: { nome, nomeUsuario, email, senha: senhaHash, tipo },
+      data: { nome, email, senha: senhaHash, tipo },
     });
 
     res.status(201).json({
       nome: usuario.nome,
-      nomeUsuario: usuario.nomeUsuario,
       email: usuario.email,
       tipo: usuario.tipo
     });
@@ -41,11 +40,11 @@ controller.login = async function (req, res) {
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
     if (!senhaValida) return res.status(401).json({ error: "Senha incorreta" });
 
-    const token = gerarToken({ id: usuario.id, tipo: usuario.tipo });
+    const token = gerarToken({ id: usuario.id, tipo: usuario.tipo, nome: usuario.nome });
 
     res.json({ usuario, token });
   }
-  catch {
+  catch (error) {
     console.error('Erro no login:', error);
     res.status(500).json({ error: 'Erro interno no servidor.' });
   }

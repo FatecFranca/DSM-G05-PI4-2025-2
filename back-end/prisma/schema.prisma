@@ -16,7 +16,6 @@ generator client {
 model Usuario {
   id       Int      @id @default(autoincrement())
   nome     String
-  nomeUsuario String   @unique
   email    String   @unique
   senha    String
   tipo     String
