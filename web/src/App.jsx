@@ -1,36 +1,56 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Sidebar from './components/Sidebar';
-import PrivateRoute from './components/PrivateRoute';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import Visitors from './pages/Visitors';
 import Vehicles from './pages/Vehicles';
+import ControlList from './pages/ControlList';
 import Users from './pages/Users';
-import Settings from './pages/Settings';
-import './index.css';
+import Layout from './components/Layout.jsx';
+import './styles/global.css';
+
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
 
 const App = () => {
   return (
-    <Router>
-      <Header />
-      <div className="app-container">
-        <Sidebar />
-        <main>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <PrivateRoute path="/dashboard" element={<Dashboard />} />
-            <PrivateRoute path="/visitors" element={<Visitors />} />
-            <PrivateRoute path="/vehicles" element={<Vehicles />} />
-            <PrivateRoute path="/users" element={<Users />} />
-            <PrivateRoute path="/settings" element={<Settings />} />
-          </Routes>
-        </main>
-      </div>
-      <Footer />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/vehicles" element={
+            <ProtectedRoute>
+              <Layout>
+                <Vehicles />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/control" element={
+            <ProtectedRoute>
+              <Layout>
+                <ControlList />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/users" element={
+            <ProtectedRoute>
+              <Layout>
+                <Users />
+              </Layout>
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

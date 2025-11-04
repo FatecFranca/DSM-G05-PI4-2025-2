@@ -1,54 +1,61 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { AuthContext } from '../contexts/AuthContext';
-import './Login.css'; // Assuming you have a CSS file for styling
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import '../styles/Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { setAuth } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
-    try {
-      const response = await api.post('/login', { email, password });
-      setAuth(response.data.token); // Assuming setAuth stores the token
-      navigate('/dashboard'); // Redirect to dashboard after successful login
-    } catch (err) {
-      setError('Invalid email or password');
+    const result = await login(email, password);
+    
+    if (!result.success) {
+      setError(result.error);
     }
+    setLoading(false);
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      <div className="login-form">
+        <h1>Controle de Veículos</h1>
+        <h2>Login</h2>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>E-mail:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Senha:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          <button type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

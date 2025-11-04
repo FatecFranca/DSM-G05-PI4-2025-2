@@ -1,0 +1,91 @@
+/* src/styles/Users.css */
+.users h1 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.user-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.user-form h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.users-list h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.user-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.user-type.admin {
+  background: #dc3545;
+  color: white;
+}
+
+.user-type.porteiro {
+  background: #ffc107;
+  color: #212529;
+}
+
+.user-type.usuario {
+  background: #28a745;
+  color: white;
+}
+
+.access-denied {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.access-denied p {
+  color: #666;
+  font-size: 16px;
+}
+
+.delete-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.delete-btn:disabled:hover {
+  background-color: #6c757d;
+}
