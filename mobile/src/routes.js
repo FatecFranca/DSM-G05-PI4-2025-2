@@ -2,12 +2,15 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import Main from "./pages/main";
-import Login from "./pages/login";
+import HeaderCustom from './components/HeaderCustom';
 import AuthScreen from "./pages/authScreen";
-import User from "./pages/user";
+import Login from "./pages/login";
 import Cadastro from "./pages/cadastro"
-import { Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
+import Main from "./pages/main";
+import Perfil from "./pages/perfil";
+import Veiculos from "./pages/veiculos";
+import Registros from "./pages/registros";
+import RegistroVeiculo from "./pages/registroVeiculo";
 
 const Stack = createStackNavigator();
 
@@ -31,21 +34,38 @@ export default function Routes() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="perfil"
+          component={Perfil}
+          options={{
+            header: (props) => <HeaderCustom {...props}/>,
+          }}
+        />
+        <Stack.Screen
+          name="registros"
+          component={Registros}
+          options={{
+            header: (props) => <HeaderCustom {...props}/>,
+          }}
+        />
+        <Stack.Screen
           name="main"
           component={Main}
           options={{
-            title: "HOME",
-            headerTitleAlign: "center",
-            headerStyle: {
-              backgroundColor: "#656cee",
-              borderBottomLeftRadius: 20,
-              borderBottomRightRadius: 20,
-            },
-            headerTitleStyle: {
-              fontFamily: Montserrat_600SemiBold,
-              fontSize: 16,
-              color: "#fff",
-            },
+            header: (props) => <HeaderCustom {...props} />,
+          }}
+        />
+        <Stack.Screen
+          name="veiculos"
+          component={Veiculos}
+          options={{
+            header: (props) => <HeaderCustom {...props} />,
+          }}
+        />
+        <Stack.Screen
+          name="registroVeiculo"
+          component={RegistroVeiculo}
+          options={{
+            header: (props) => <HeaderCustom {...props} />,
           }}
         />
       </Stack.Navigator>

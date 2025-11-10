@@ -23,10 +23,10 @@ import {
   Link,
   ScrollView,
 } from "../styles";
+import api from "../services/api";
 
 export default function Cadastro({ navigation }) {
   const [nome, setNome] = useState("");
-  const [nomeUsuario, setNomeUsuario] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,38 +40,32 @@ export default function Cadastro({ navigation }) {
   if (!fontsLoaded) return null;
 
   const handleCadastro = async () => {
-    if (!email || !password) {
+    if (!nome || !email || !password || !confirmPassword) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const user = { email, password };
+    if (password !== confirmPassword) {
+      alert("As senhas não conferem!");
+      return;
+    }
+
+    const usuario = { nome, email, password };
 
     try {
-      const response = await fetch(`http://localhost:8080/usuarios`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nome: nome,
-          nomeUsuario: nomeUsuario,
-          email: email,
-          senha: password,
-          tipo: "morador",
-        }),
+      const response = await api.post('/usuarios', {
+        nome,
+        email,
+        senha: password,
+        tipo: 'morador',
       });
 
-      if (response.ok) {
-        await AsyncStorage.setItem("user", JSON.stringify(user));
-        alert("Usuário cadastrado com sucesso!");
-        navigation.navigate("login");
-      } else {
-        alert("Erro ao cadastrar usuário!");
-      }
+      await AsyncStorage.setItem("usuario", JSON.stringify({ nome, email, password }));
+      alert("Usuário cadastrado com sucesso!");
+      navigation.navigate("login");
     } catch (error) {
-      console.error(error);
-      alert("Erro de conexão com o servidor.");
+      console.error("Erro no cadastro:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Erro de conexão com o servidor.");
     }
   };
 
@@ -93,15 +87,6 @@ export default function Cadastro({ navigation }) {
           <FieldContainer>
             <Label>Nome</Label>
             <Input placeholder="Nome" value={nome} onChangeText={setNome} />
-          </FieldContainer>
-
-          <FieldContainer>
-            <Label>Nome de Usuário</Label>
-            <Input
-              placeholder="Nome de Usuário"
-              value={nomeUsuario}
-              onChangeText={setNomeUsuario}
-            />
           </FieldContainer>
 
           <FieldContainer>

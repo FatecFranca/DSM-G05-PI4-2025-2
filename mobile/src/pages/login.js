@@ -4,6 +4,7 @@ import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Container, TopSection, BottomSectionLogin, Logo, LogoText, LogoImage, FieldContainer, Input, Label, Button, ButtonGradient, ButtonText, Link } from "../styles";
+import api from "../services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,25 +26,18 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/usuarios/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, senha:password }),
+      const response = await api.post("/usuarios/login", {
+        email,
+        senha: password,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
-        AsyncStorage.setItem("token", data.token);
-        navigation.navigate("main");
-      } else {
-        alert(data.message || "E-mail ou senha inválidos!");
-      }
+      await AsyncStorage.setItem("token", data.token);
+      navigation.navigate("main");
     } catch (error) {
-      console.error(error);
-      alert("Erro de conexão com a API");
+      console.error("Erro no login:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "E-mail ou senha inválidos!");
     }
   };
 
