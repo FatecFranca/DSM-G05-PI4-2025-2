@@ -7,7 +7,7 @@
     "start": "node ./src/bin/server.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.2",
     "chalk": "^5.4.1",
     "cookie-parser": "^1.4.7",
@@ -15,13 +15,13 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "prisma": "^6.16.2",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "eslint": "^9.27.0",
     "nodemon": "^3.1.10",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "prisma": "^6.19.0"
   },
   "type": "module"
 }

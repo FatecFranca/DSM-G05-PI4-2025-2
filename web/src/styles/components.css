@@ -1,0 +1,49 @@
+/* Estilos para componentes comuns */
+.gradient-blue {
+  background: linear-gradient(to left, #969BFF, #656CEE);
+}
+
+.gradient-orange {
+  background: linear-gradient(to bottom, #FFBA82, #FF8B2D);
+}
+
+.card {
+  background-color: var(--surface);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.button-primary {
+  background: linear-gradient(to left, #969BFF, #656CEE);
+  border: none;
+  border-radius: 15px;
+  padding: 15px 30px;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  background-color: #fff;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: #5B5B7E;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.input-field:focus {
+  outline: none;
+  border-bottom-color: #656CEE;
+}
