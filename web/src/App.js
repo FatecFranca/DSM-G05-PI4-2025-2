@@ -5,7 +5,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext.js';
 import { theme } from './styles/theme.js';
 import './styles/globals.css';
 
-// Pages
+import Layout from './components/common/Layout.js';
+
 import AuthScreen from './pages/AuthScreen.js';
 import Login from './pages/Login.js';
 import Register from './pages/Register.js';
@@ -17,7 +18,7 @@ import VehicleRegister from './pages/VehicleRegister.js';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
+  return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
 };
 
 const PublicRoute = ({ children }) => {

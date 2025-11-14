@@ -1,5 +1,4 @@
 
-// src/services/vehicles.js
 import api from './api.js';
 
 export const vehicleService = {

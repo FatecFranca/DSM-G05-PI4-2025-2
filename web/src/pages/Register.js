@@ -36,17 +36,10 @@ const Logo = styled.div`
   margin-bottom: 40px;
 `;
 
-const LogoImage = styled.div`
+const LogoImage = styled.img`
   width: 80px;
   height: 80px;
-  background-color: ${({ theme }) => theme.colors.primary};
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 24px;
+  object-fit: contain;
 `;
 
 const LogoText = styled.span`
@@ -177,7 +170,7 @@ const Register = () => {
       <ScrollContainer>
         <TopSection>
           <Logo>
-            <LogoImage>M</LogoImage>
+            <LogoImage src="/assets/logo.png" alt="MONIT Logo" />
             <LogoText>MONIT</LogoText>
           </Logo>
 

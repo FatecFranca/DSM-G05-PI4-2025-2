@@ -2,39 +2,36 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { vehicleService } from '../services/vehicles.js';
 import { useAuth } from '../contexts/AuthContext.js';
-import BottomNav from '../components/common/BottomNav.js';
 
 const Container = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.background};
-  padding-bottom: 80px;
 `;
 
 const Content = styled.div`
-  padding: 40px 20px;
-  max-width: 800px;
+  padding: 40px 60px;
+  max-width: 1000px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
 `;
 
 const BoldText = styled.h1`
   font-family: ${({ theme }) => theme.fonts.saira.bold};
-  font-size: 18px;
+  font-size: 28px;
   color: ${({ theme }) => theme.colors.text.primary};
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   text-transform: uppercase;
-  width: 85%;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  font-weight: 700;
+  letter-spacing: 1px;
 `;
 
 const VehiclesList = styled.div`
-  width: 85%;
-  max-width: 600px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   padding-bottom: 20px;
 `;
 
@@ -98,7 +95,6 @@ const Vehicles = () => {
       try {
         const allVehicles = await vehicleService.getAll();
         
-        // Filtrar veículos se for morador
         let filteredVehicles = allVehicles;
         if (user?.tipo === 'morador') {
           filteredVehicles = allVehicles.filter(vehicle => 
@@ -124,7 +120,6 @@ const Vehicles = () => {
           <BoldText>Veículos</BoldText>
           <Loading>Carregando veículos...</Loading>
         </Content>
-        <BottomNav />
       </Container>
     );
   }
@@ -154,7 +149,6 @@ const Vehicles = () => {
           )}
         </VehiclesList>
       </Content>
-      <BottomNav />
     </Container>
   );
 };

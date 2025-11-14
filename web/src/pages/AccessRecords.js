@@ -1,40 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getAccessRecords } from '../services/access.js';
-import BottomNav from '../components/common/BottomNav.js';
+import { accessService } from '../services/access.js';
 
 const Container = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.background};
-  padding-bottom: 80px;
 `;
 
 const Content = styled.div`
-  padding: 40px 20px;
-  max-width: 800px;
+  padding: 40px 60px;
+  max-width: 1000px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
 `;
 
 const BoldText = styled.h1`
   font-family: ${({ theme }) => theme.fonts.saira.bold};
-  font-size: 18px;
+  font-size: 28px;
   color: ${({ theme }) => theme.colors.text.primary};
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   text-transform: uppercase;
-  width: 85%;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  font-weight: 700;
+  letter-spacing: 1px;
 `;
 
 const RecordsList = styled.div`
-  width: 85%;
-  max-width: 600px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 70vh;
+  gap: 16px;
+  max-height: calc(100vh - 250px);
   overflow-y: auto;
   padding-bottom: 20px;
 `;
@@ -97,7 +94,6 @@ const AccessRecords = () => {
     const fetchRecords = async () => {
       try {
         const accessRecords = await accessService.getAll();
-        // Ordenar por data mais recente
         const sortedRecords = accessRecords.sort((a, b) => 
           new Date(b.horaEntrada) - new Date(a.horaEntrada)
         );
@@ -111,7 +107,6 @@ const AccessRecords = () => {
 
     fetchRecords();
 
-    // Atualizar a cada 60 segundos
     const interval = setInterval(fetchRecords, 60000);
     return () => clearInterval(interval);
   }, []);
@@ -128,7 +123,6 @@ const AccessRecords = () => {
           <BoldText>Entrada/Saída</BoldText>
           <Loading>Carregando registros...</Loading>
         </Content>
-        <BottomNav />
       </Container>
     );
   }
@@ -158,7 +152,6 @@ const AccessRecords = () => {
           )}
         </RecordsList>
       </Content>
-      <BottomNav />
     </Container>
   );
 };

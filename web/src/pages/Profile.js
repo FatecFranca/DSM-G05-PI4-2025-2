@@ -2,58 +2,37 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import styled from 'styled-components';
-import { IoLogOutOutline } from 'react-icons/io5';
-import BottomNav from '../components/common/BottomNav.js';
 
 const Container = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.background};
-  padding-bottom: 80px;
 `;
 
 const Content = styled.div`
-  padding: 40px 20px;
-  max-width: 800px;
+  padding: 40px 60px;
+  max-width: 1000px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+  }
 `;
 
-const Header = styled.div`
-  width: 85%;
-  max-width: 600px;
-  margin: 0 auto 30px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+const PageHeader = styled.div`
+  margin-bottom: 40px;
 `;
 
 const BoldText = styled.h1`
   font-family: ${({ theme }) => theme.fonts.saira.bold};
-  font-size: 18px;
+  font-size: 28px;
   color: ${({ theme }) => theme.colors.text.primary};
   text-transform: uppercase;
   margin: 0;
-`;
-
-const LogoutButton = styled.button`
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.text.primary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+  font-weight: 700;
+  letter-spacing: 1px;
 `;
 
 const ButtonsContainer = styled.div`
-  width: 85%;
-  max-width: 600px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -83,13 +62,8 @@ const ButtonText = styled.span`
 `;
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   const handleRecords = () => {
     navigate('/records');
@@ -106,12 +80,9 @@ const Profile = () => {
   return (
     <Container>
       <Content>
-        <Header>
+        <PageHeader>
           <BoldText>Olá, {user ? user.nome.split(' ')[0] : 'Usuário'}!</BoldText>
-          <LogoutButton onClick={handleLogout} title="Sair">
-            <IoLogOutOutline size={28} />
-          </LogoutButton>
-        </Header>
+        </PageHeader>
 
         <ButtonsContainer>
           {user && user.tipo === 'porteiro' ? (
@@ -141,7 +112,6 @@ const Profile = () => {
           )}
         </ButtonsContainer>
       </Content>
-      <BottomNav />
     </Container>
   );
 };

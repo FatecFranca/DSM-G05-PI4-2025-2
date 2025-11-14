@@ -1,5 +1,4 @@
 
-// src/services/access.js
 import api from './api.js';
 
 export const accessService = {
