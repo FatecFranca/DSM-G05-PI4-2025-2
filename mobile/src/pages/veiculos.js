@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, TouchableOpacity } from "react-native";
 import api from "../services/api";
 import {
   Container,
@@ -58,18 +58,24 @@ export default class Veiculos extends Component {
   }
 
   renderItem = ({ item }) => (
-    <Card>
-      <CarInfo>
-        <CarLeft>
-          <CarModel>{item.modelo}</CarModel>
-          <CarPlate>{item.placa}</CarPlate>
-        </CarLeft>
+    <TouchableOpacity
+      onPress={() =>
+        this.props.navigation.navigate("detalhesVeiculo", { veiculo: item })
+      }
+    >
+      <Card>
+        <CarInfo>
+          <CarLeft>
+            <CarModel>{item.modelo}</CarModel>
+            <CarPlate>{item.placa}</CarPlate>
+          </CarLeft>
 
-        <CarRight>
-          <CarOwner>{item.usuario?.nome}</CarOwner>
-        </CarRight>
-      </CarInfo>
-    </Card>
+          <CarRight>
+            <CarOwner>{item.usuario?.nome}</CarOwner>
+          </CarRight>
+        </CarInfo>
+      </Card>
+    </TouchableOpacity>
   );
 
   render() {

@@ -8,6 +8,7 @@ export default function HeaderCustom({ navigation, route }) {
     perfil: "Perfil",
     registros: "Registros",
     registroVeiculo: "Registro de Veículo",
+    detalhesVeiculo: "Detalhes do Veículo",
     login: "Login",
     cadastro: "Cadastro",
     veiculos: "Veículos"
