@@ -1,6 +1,7 @@
 import prisma from "../database/client.js";
 import bcrypt from "bcryptjs";
 import { gerarToken } from "../utils/jwt.js";
+import { TipoUsuario } from '@prisma/client'
 
 const controller = {}
 
@@ -16,7 +17,7 @@ controller.create = async function (req, res) {
     res.status(201).json({
       nome: usuario.nome,
       email: usuario.email,
-      tipo: usuario.tipo
+      tipo: TipoUsuario.MORADOR
     });
   } catch (err) {
     console.error('Erro ao criar usuário:', err);

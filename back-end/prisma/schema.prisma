@@ -13,28 +13,48 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum TipoUsuario {
+  ADMIN
+  MORADOR
+  PORTEIRO
+}
+
 model Usuario {
   id       Int      @id @default(autoincrement())
   nome     String
   email    String   @unique
   senha    String
-  tipo     String
+  tipo     TipoUsuario @default(MORADOR)
   veiculos Veiculo[]
 }
 
 model Veiculo {
-  id        Int      @id @default(autoincrement())
-  modelo    String
-  cor       String
-  placa     String   @unique
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
-  usuarioId Int
+  id          Int        @id @default(autoincrement())
+  modelo      String
+  cor         String
+  placa       String     @unique
+  usuarioId   Int?
+  usuario     Usuario?   @relation(fields: [usuarioId], references: [id])
+
+  visitanteId Int?
+  visitante   Visitante? @relation(fields: [visitanteId], references: [id])
+
+  listaControles ListaControle[]
+}
+
+model Visitante {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  documento String?
+  veiculos  Veiculo[]
 }
 
 model ListaControle {
-  id        Int      @id @default(autoincrement())
-  placa     String
-  motivo    String?
-  horaEntrada DateTime @default(now())
-  horaSaida DateTime?
+  id          Int       @id @default(autoincrement())
+  placa       String
+  motivo      String?
+  horaEntrada DateTime  @default(now())
+  horaSaida   DateTime?
+  veiculoId   Int?
+  veiculo     Veiculo?  @relation(fields: [veiculoId], references: [id])
 }

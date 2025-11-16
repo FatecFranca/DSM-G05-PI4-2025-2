@@ -53,7 +53,7 @@ app.post("/estatisticas", (req, res) => {
 
       try {
         const result = JSON.parse(dataString);
-        res.json(result);
+        return res.json(result);
       } catch (err) {
         console.error("Erro ao interpretar resposta do Python:", dataString);
         res.status(500).json({ erro: "Erro ao interpretar resposta do Python." });

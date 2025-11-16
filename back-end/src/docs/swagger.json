@@ -26,7 +26,7 @@
           "id": { "type": "integer", "example": 1 },
           "nome": { "type": "string", "example": "José Oliveira" },
           "email": { "type": "string", "example": "jose@email.com" },
-          "tipo": { "type": "string", "enum": ["morador", "porteiro", "admin"], "example": "morador" }
+          "tipo": { "type": "string", "enum": ["MORADOR", "PORTEIRO", "ADMIN"], "example": "MORADOR" }
         }
       },
       "Veiculo": {
@@ -128,7 +128,7 @@
                   "nome": { "type": "string" },
                   "email": { "type": "string" },
                   "senha": { "type": "string" },
-                  "tipo": { "type": "string", "enum": ["morador", "porteiro", "admin"] }
+                  "tipo": { "type": "string", "enum": ["MORADOR", "PORTEIRO", "ADMIN"] }
                 },
                 "required": ["nome", "email", "senha", "tipo"]
               }
