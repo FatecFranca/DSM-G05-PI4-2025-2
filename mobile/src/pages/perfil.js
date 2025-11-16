@@ -12,7 +12,6 @@ import {
 import BottomNavCustom from '../components/BottomNavCustom';
 import { useFonts, Saira_700Bold } from "@expo-google-fonts/saira";
 import { getUsuario } from "../utils/getUsuario";
-import { TouchableOpacity } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -67,7 +66,7 @@ export default function Perfil({ navigation }) {
                     </LogoutButton>
                 </HeaderPerfil>
 
-                {usuario && usuario.tipo === "porteiro" ? (
+                {usuario && usuario.tipo === "PORTEIRO" ? (
                     <>
                         <Buttons onPress={handleRegistros}>
                             <ButtonsText>Registro de entrada e saída</ButtonsText>
@@ -83,6 +82,9 @@ export default function Perfil({ navigation }) {
                     </>
                 ) : (
                     <>
+                        <Buttons onPress={handleRegistros}>
+                            <ButtonsText>Meus registros</ButtonsText>
+                        </Buttons>
                         <Buttons onPress={handleVeiculos}>
                             <ButtonsText>Meus veículos</ButtonsText>
                         </Buttons>

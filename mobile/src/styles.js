@@ -115,7 +115,8 @@ export const Header = styled.View`
   align-items: center;
   justify-content: space-between;
   padding-horizontal: 20px;
-  padding-vertical: 15px;
+  paddingTop: 30px;
+  padding-bottom: 15px;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
 `;
@@ -182,10 +183,11 @@ export const BottomNav = styled.View`
   justify-content: space-around;
   align-items: center;
   background-color: #2E2F3E;
-  height: 60px;
+  height: 80px;
   position: absolute;
   bottom: 0;
   width: 100%;
+  padding-bottom: 10px;
 `;
 
 export const IconWrapper = styled.TouchableOpacity`
@@ -301,7 +303,7 @@ export const CarImage = styled.Image`
 
 export const FlatList = styled.FlatList`
   width: 85%;
-  padding-bottom: 60;
+  padding-bottom: 60px;
 `;
 
 export const CarLeft = styled.View`

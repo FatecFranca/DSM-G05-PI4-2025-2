@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ActivityIndicator, TouchableOpacity } from "react-native";
+import { ActivityIndicator, TouchableOpacity, Text, Alert, View } from "react-native";
 import api from "../services/api";
 import {
   Container,
@@ -18,6 +18,7 @@ import {
 import BottomNavCustom from '../components/BottomNavCustom';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUsuario } from "../utils/getUsuario";
+import { Feather } from "@expo/vector-icons";
 
 export default class Veiculos extends Component {
   state = {
@@ -33,7 +34,6 @@ export default class Veiculos extends Component {
 
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.log("Nenhum token encontrado!");
         this.setState({ loading: false });
         return;
       }
@@ -44,7 +44,7 @@ export default class Veiculos extends Component {
 
       let veiculos = response.data;
 
-      if (usuario?.tipo === "morador") {
+      if (usuario?.tipo === "MORADOR") {
         veiculos = veiculos.filter(
           (v) => v.usuario?.id === usuario.id
         );
@@ -56,6 +56,24 @@ export default class Veiculos extends Component {
       this.setState({ loading: false });
     }
   }
+
+  deleteVeiculo = async (id) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      await api.delete(`/veiculos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      this.setState((prevState) => ({
+        veiculos: prevState.veiculos.filter((v) => v.id !== id),
+      }));
+    } catch (error) {
+      console.log("Erro ao excluir veículo:", error.response?.data || error);
+    }
+  };
 
   renderItem = ({ item }) => (
     <TouchableOpacity
@@ -71,7 +89,36 @@ export default class Veiculos extends Component {
           </CarLeft>
 
           <CarRight>
-            <CarOwner>{item.usuario?.nome}</CarOwner>
+            {this.state.usuario?.tipo === "PORTEIRO" && (
+              <CarOwner>{item.usuario?.nome}</CarOwner>
+            )}
+
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  "Confirmar exclusão",
+                  "Deseja realmente excluir este veículo?",
+                  [
+                    { text: "Cancelar", style: "cancel" },
+                    {
+                      text: "Excluir",
+                      style: "destructive",
+                      onPress: () => this.deleteVeiculo(item.id),
+                    },
+                  ]
+                );
+              }}
+              style={{
+                marginTop: 8,
+                backgroundColor: "#FF4C4C",
+                padding: 10,
+                borderRadius: 8,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Feather name="trash-2" size={20} color="#fff" />
+            </TouchableOpacity>
           </CarRight>
         </CarInfo>
       </Card>
@@ -79,7 +126,7 @@ export default class Veiculos extends Component {
   );
 
   render() {
-    const { veiculos, loading } = this.state;
+    const { veiculos, loading, usuario } = this.state;
 
     if (loading) {
       return (
@@ -89,17 +136,28 @@ export default class Veiculos extends Component {
       );
     }
 
+    const mensagem =
+      usuario?.tipo === "PORTEIRO"
+        ? "Nenhum veículo cadastrado no sistema."
+        : "Você ainda não possui veículos cadastrados.";
+
     return (
       <Container>
-        <Content>
+        <Content style={{ paddingBottom: 60 }}>
           <BoldText>Veículos</BoldText>
 
-          <FlatList
-            data={veiculos}
-            keyExtractor={(item) => item.placa}
-            renderItem={this.renderItem}
-            showsVerticalScrollIndicator={false}
-          />
+          {veiculos.length === 0 ? (
+            <View style={{ alignItems: "center", marginTop: 20 }}>
+              <Text style={{ color: "#666", fontSize: 16 }}>{mensagem}</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={veiculos}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={this.renderItem}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
 
           <BottomNavCustom />
         </Content>

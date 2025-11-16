@@ -56,8 +56,7 @@ export default function Cadastro({ navigation }) {
       const response = await api.post('/usuarios', {
         nome,
         email,
-        senha: password,
-        tipo: 'morador',
+        senha: password
       });
 
       await AsyncStorage.setItem("usuario", JSON.stringify({ nome, email, password }));
