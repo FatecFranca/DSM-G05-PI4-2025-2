@@ -6,6 +6,7 @@ import { spawn } from "child_process";
 import dotenv from "dotenv";
 
 import usuarioRoutes from "./routes/usuarioRoutes.js";
+import visitanteRoutes from "./routes/visitanteRoutes.js";
 import veiculoRoutes from "./routes/veiculoRoutes.js";
 import listaControleRoutes from "./routes/listaControleRoutes.js";
 
@@ -18,6 +19,7 @@ const swaggerPath = new URL("./docs/swagger.json", import.meta.url);
 const swaggerSpec = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
 
 app.use("/usuarios", usuarioRoutes);
+app.use("/visitantes", visitanteRoutes);
 app.use("/veiculos", veiculoRoutes);
 app.use("/lista-controle", listaControleRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

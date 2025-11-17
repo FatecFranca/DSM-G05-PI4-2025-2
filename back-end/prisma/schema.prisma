@@ -26,6 +26,8 @@ model Usuario {
   senha    String
   tipo     TipoUsuario @default(MORADOR)
   veiculos Veiculo[]
+  
+  visitantes Visitante[]
 }
 
 model Veiculo {
@@ -47,6 +49,9 @@ model Visitante {
   nome      String
   documento String?
   veiculos  Veiculo[]
+
+  usuarioId Int
+  usuario   Usuario    @relation(fields: [usuarioId], references: [id])
 }
 
 model ListaControle {
@@ -55,6 +60,7 @@ model ListaControle {
   motivo      String?
   horaEntrada DateTime  @default(now())
   horaSaida   DateTime?
+  
   veiculoId   Int?
   veiculo     Veiculo?  @relation(fields: [veiculoId], references: [id])
 }

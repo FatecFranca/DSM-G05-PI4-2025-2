@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post("/", controller.create);
 router.post("/login", controller.login);
-router.get("/", authMiddleware, authorize(["porteiro", "admin"]), controller.retrieveAll);
+router.get("/", authMiddleware, authorize(["PORTEIRO", "ADMIN"]), controller.retrieveAll);
 router.get("/:id", authMiddleware, controller.retrieveOne);
-router.put("/", authMiddleware, controller.update);
+router.patch("/:id", authMiddleware, controller.update);
 router.delete("/:id", authMiddleware, controller.delete);
 
 export default router;

@@ -17,8 +17,8 @@ def calcular_estatisticas_e_regressao(dados):
         return {"erro": "Colunas horaEntrada/horaSaida ausentes."}
 
     df = df.dropna(subset=["horaEntrada"])
-    df["horaEntrada"] = pd.to_datetime(df["horaEntrada"], utc=True).dt.tz_localize(None)
-    df["horaSaida"] = pd.to_datetime(df["horaSaida"], utc=True).dt.tz_localize(None)
+    df["horaEntrada"] = pd.to_datetime(df["horaEntrada"])
+    df["horaSaida"] = pd.to_datetime(df["horaSaida"])
 
     df["tempo_min"] = (
         (df["horaSaida"] - df["horaEntrada"])

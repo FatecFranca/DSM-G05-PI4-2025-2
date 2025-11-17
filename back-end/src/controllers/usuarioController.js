@@ -1,7 +1,6 @@
 import prisma from "../database/client.js";
 import bcrypt from "bcryptjs";
 import { gerarToken } from "../utils/jwt.js";
-import { TipoUsuario } from '@prisma/client'
 
 const controller = {}
 
@@ -17,7 +16,7 @@ controller.create = async function (req, res) {
     res.status(201).json({
       nome: usuario.nome,
       email: usuario.email,
-      tipo: TipoUsuario.MORADOR
+      tipo: usuario.tipo
     });
   } catch (err) {
     console.error('Erro ao criar usuário:', err);
@@ -76,35 +75,55 @@ controller.retrieveOne = async function (req, res) {
 
 controller.update = async function (req, res) {
   try {
-    const { nome, email, senha } = req.body;
+    const id = Number(req.params.id);
 
-    const data = { nome, email, senha };
-    if (senha) {
-      data.senha = await bcrypt.hash(senha, 10);
+    const data = {};
+
+    if (req.body.nome !== undefined) {
+      data.nome = req.body.nome;
+    }
+
+    if (req.body.email !== undefined) {
+      data.email = req.body.email;
+    }
+
+    if (req.body.senha !== undefined) {
+      data.senha = await bcrypt.hash(req.body.senha, 10);
     }
 
     await prisma.usuario.update({
-      where: { id: Number(req.params.id) },
-      data,
+      where: { id },
+      data
     });
-  
+
     res.status(204).end();
   } catch (err) {
-    console.error(err)
+    console.error("Erro ao atualizar usuário:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
 controller.delete = async function (req, res) {
   try {
-    await prisma.usuario.delete({ where: { id: req.params.id } });
-    
+    const id = Number(req.params.id);
+
+    await prisma.veiculo.deleteMany({
+      where: { usuarioId: id }
+    });
+
+    await prisma.visitante.deleteMany({
+      where: { usuarioId: id }
+    });
+
+    await prisma.usuario.delete({
+      where: { id }
+    });
+
     res.status(204).end();
   } catch (err) {
-    console.error(err)
+    console.error("Erro ao deletar usuário:", err);
     res.status(500).json({ error: err.message });
   }
 };
-
 
 export default controller
