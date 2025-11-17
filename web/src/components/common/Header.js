@@ -220,7 +220,7 @@ const Header = () => {
   const navItems = [
     { path: '/dashboard', icon: IoHomeOutline, label: 'Home' },
     { path: '/vehicles', icon: IoCarOutline, label: 'Veículos' },
-    ...(user?.tipo === 'porteiro' ? [{ path: '/records', icon: IoListOutline, label: 'Registros' }] : []),
+    ...(user?.tipo === 'PORTEIRO' ? [{ path: '/records', icon: IoListOutline, label: 'Registros' }] : []),
     { path: '/profile', icon: IoPersonOutline, label: 'Perfil' },
   ];
 
@@ -240,9 +240,9 @@ const Header = () => {
 
   const getUserRoleLabel = (tipo) => {
     const roles = {
-      'morador': 'Morador',
-      'porteiro': 'Porteiro',
-      'admin': 'Administrador'
+      'MORADOR': 'Morador',
+      'PORTEIRO': 'Porteiro',
+      'ADMIN': 'Administrador'
     };
     return roles[tipo] || 'Usuário';
   };

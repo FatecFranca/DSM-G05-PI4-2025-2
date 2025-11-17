@@ -15,6 +15,7 @@ import Profile from './pages/Profile.js';
 import Vehicles from './pages/Vehicles.js';
 import AccessRecords from './pages/AccessRecords.js';
 import VehicleRegister from './pages/VehicleRegister.js';
+import VisitorRegister from './pages/VisitorRegister.js';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -67,6 +68,11 @@ function App() {
               <Route path="/register-vehicle" element={
                 <ProtectedRoute>
                   <VehicleRegister />
+                </ProtectedRoute>
+              } />
+              <Route path="/register-visitor" element={
+                <ProtectedRoute>
+                  <VisitorRegister />
                 </ProtectedRoute>
               } />
             </Routes>

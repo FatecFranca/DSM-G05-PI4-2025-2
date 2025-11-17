@@ -121,7 +121,7 @@ const VehicleRegister = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && user.tipo !== 'morador') {
+    if (user && user.tipo !== 'MORADOR') {
       const loadUsers = async () => {
         setLoadingUsers(true);
         try {
@@ -156,7 +156,7 @@ const VehicleRegister = () => {
 
     setLoading(true);
     try {
-      const usuarioId = user.tipo === 'morador' ? user.id : formData.usuarioId;
+      const usuarioId = user.tipo === 'MORADOR' ? user.id : formData.usuarioId;
       
       if (!usuarioId) {
         alert('Selecione um usuário para o veículo');
@@ -219,7 +219,7 @@ const VehicleRegister = () => {
             />
           </FieldContainer>
 
-          {user.tipo !== 'morador' && (
+          {user.tipo !== 'MORADOR' && (
             <FieldContainer>
               <Label>Proprietário</Label>
               <Select

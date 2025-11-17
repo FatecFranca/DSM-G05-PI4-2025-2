@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { accessService } from '../services/access.js';
+import { useAuth } from '../contexts/AuthContext.js';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -86,15 +87,32 @@ const Loading = styled.div`
   color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
+const RecordOwner = styled.span`
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+`;
+
 const AccessRecords = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
         const accessRecords = await accessService.getAll();
-        const sortedRecords = accessRecords.sort((a, b) => 
+        
+        // MORADOR vê apenas seus próprios registros
+        let filteredRecords = accessRecords;
+        if (user?.tipo === 'MORADOR') {
+          filteredRecords = accessRecords.filter(record => 
+            record.veiculo?.usuario?.id === user.id
+          );
+        }
+        // PORTEIRO e ADMIN veem todos os registros
+        
+        const sortedRecords = filteredRecords.sort((a, b) => 
           new Date(b.horaEntrada) - new Date(a.horaEntrada)
         );
         setRecords(sortedRecords);
@@ -109,18 +127,31 @@ const AccessRecords = () => {
 
     const interval = setInterval(fetchRecords, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
 
   const formatDateTime = (dateString) => {
     if (!dateString) return 'Ainda não saiu';
     return new Date(dateString).toLocaleString('pt-BR');
   };
 
+  const getOwnerName = (record) => {
+    if (!record.veiculo) return null;
+    if (record.veiculo.visitante) {
+      return `Visitante: ${record.veiculo.visitante.nome}`;
+    }
+    if (record.veiculo.usuario) {
+      return `Morador: ${record.veiculo.usuario.nome}`;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <Container>
         <Content>
-          <BoldText>Entrada/Saída</BoldText>
+          <BoldText>
+            {user?.tipo === 'MORADOR' ? 'Meus Registros' : 'Registro de Entrada e Saída'}
+          </BoldText>
           <Loading>Carregando registros...</Loading>
         </Content>
       </Container>
@@ -130,7 +161,9 @@ const AccessRecords = () => {
   return (
     <Container>
       <Content>
-        <BoldText>Entrada/Saída</BoldText>
+        <BoldText>
+          {user?.tipo === 'MORADOR' ? 'Meus Registros' : 'Registro de Entrada e Saída'}
+        </BoldText>
         
         <RecordsList>
           {records.map((record) => (
@@ -138,9 +171,14 @@ const AccessRecords = () => {
               <RecordLeft>
                 <RecordReason>{record.motivo || 'Sem motivo informado'}</RecordReason>
                 <RecordPlate>{record.placa}</RecordPlate>
+                {user?.tipo !== 'MORADOR' && getOwnerName(record) && (
+                  <RecordOwner>{getOwnerName(record)}</RecordOwner>
+                )}
               </RecordLeft>
               <RecordRight>
-                <RecordTime>{formatDateTime(record.horaSaida)}</RecordTime>
+                <RecordTime>
+                  {formatDateTime(record.horaEntrada)} - {formatDateTime(record.horaSaida)}
+                </RecordTime>
               </RecordRight>
             </RecordCard>
           ))}

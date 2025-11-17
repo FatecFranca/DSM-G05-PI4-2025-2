@@ -77,6 +77,10 @@ const Profile = () => {
     navigate('/register-vehicle');
   };
 
+  const handleRegisterVisitor = () => {
+    navigate('/register-visitor');
+  };
+
   return (
     <Container>
       <Content>
@@ -85,7 +89,7 @@ const Profile = () => {
         </PageHeader>
 
         <ButtonsContainer>
-          {user && user.tipo === 'porteiro' ? (
+          {user && user.tipo === 'PORTEIRO' ? (
             <>
               <MenuButton onClick={handleRecords}>
                 <ButtonText>Registro de entrada e saída</ButtonText>
@@ -98,6 +102,10 @@ const Profile = () => {
               <MenuButton onClick={handleRegisterVehicle}>
                 <ButtonText>Registrar veículo</ButtonText>
               </MenuButton>
+
+              <MenuButton onClick={handleRegisterVisitor}>
+                <ButtonText>Cadastrar visitante</ButtonText>
+              </MenuButton>
             </>
           ) : (
             <>
@@ -107,6 +115,10 @@ const Profile = () => {
 
               <MenuButton onClick={handleRegisterVehicle}>
                 <ButtonText>Registrar veículo</ButtonText>
+              </MenuButton>
+
+              <MenuButton onClick={handleRegisterVisitor}>
+                <ButtonText>Cadastrar visitante</ButtonText>
               </MenuButton>
             </>
           )}

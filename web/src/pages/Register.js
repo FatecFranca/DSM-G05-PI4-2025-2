@@ -152,7 +152,7 @@ const Register = () => {
         nome: formData.nome,
         email: formData.email,
         senha: formData.password,
-        tipo: 'morador'
+        tipo: 'MORADOR'
       });
       alert('Usuário cadastrado com sucesso!');
       navigate('/login');
