@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components/native";
 import { ScrollView } from "react-native";
 import BottomNavCustom from "../components/BottomNavCustom";
+import { BoldText } from "../styles";
 
 export default function DetalhesVeiculo({ route }) {
   const { veiculo } = route.params;
@@ -11,6 +12,8 @@ export default function DetalhesVeiculo({ route }) {
     <Container>
       <ScrollView style={{ flex: 1 }}>
         <Content>
+          <BoldText>Detalhes do Veículo</BoldText>
+
           <Field>
             <Label>Modelo</Label>
             <Value>{veiculo.modelo}</Value>
@@ -28,7 +31,7 @@ export default function DetalhesVeiculo({ route }) {
 
           <Field>
             <Label>Proprietário</Label>
-            <Value>{veiculo.usuario?.nome}</Value>
+            <Value>{veiculo.usuario?.nome || veiculo.visitante?.nome}</Value>
           </Field>
         </Content>
 
@@ -68,12 +71,14 @@ const Field = styled.View`
 `;
 
 const Label = styled.Text`
-  font-size: 15px;
+  font-family: Montserrat_600SemiBold;
+  font-size: 18px;
   color: #3b3b3b;
   margin-bottom: 2px;
 `;
 
 const Value = styled.Text`
+  font-family: Montserrat_400Regular;
   font-size: 16px;
   color: #2f58ff;
   margin-left: 4px;

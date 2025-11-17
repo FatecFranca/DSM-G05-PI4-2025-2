@@ -75,7 +75,8 @@ export default class Veiculos extends Component {
     }
   };
 
-  renderItem = ({ item }) => (
+  renderItem = ({ item }) => ( 
+
     <TouchableOpacity
       onPress={() =>
         this.props.navigation.navigate("detalhesVeiculo", { veiculo: item })
@@ -90,7 +91,7 @@ export default class Veiculos extends Component {
 
           <CarRight>
             {this.state.usuario?.tipo === "PORTEIRO" && (
-              <CarOwner>{item.usuario?.nome}</CarOwner>
+              <CarOwner>{item.usuario?.nome || item.visitante?.nome}</CarOwner>
             )}
 
             <TouchableOpacity

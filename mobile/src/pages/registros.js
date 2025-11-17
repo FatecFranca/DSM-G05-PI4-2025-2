@@ -93,22 +93,23 @@ export default function Registros() {
   }
 
   const renderRegistro = (item) => {
-    const horaSaida = item.horaSaida
-      ? new Date(item.horaSaida).toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      : "Ainda não saiu";
+    const entrada = new Date(item.horaEntrada);
+    const saida = item.horaSaida ? new Date(item.horaSaida) : null;
 
-    const horaEntrada = new Date(item.horaEntrada).toLocaleTimeString("pt-BR", {
+    const nomeDono = item.veiculo?.usuario?.nome || item.veiculo?.visitante?.nome || "Não identificado";
+
+    const horaEntrada = entrada.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
     });
 
-    const nomeDono =
-      usuario?.tipo === "MORADOR"
-        ? null
-        : item.usuario?.nome || "Visitante";
+    let horaSaidaFormatada = "Ainda não saiu";
+    if (saida) {
+      const mesmaData = entrada.toDateString() === saida.toDateString();
+      horaSaidaFormatada = mesmaData
+        ? saida.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+        : `${saida.toLocaleDateString("pt-BR")} ${saida.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+    }
 
     return (
       <Card key={item.id}>
@@ -119,9 +120,9 @@ export default function Registros() {
           </CarLeft>
 
           <CarRight>
-            {nomeDono && <CarOwner>{nomeDono}</CarOwner>}
+            <CarOwner>{nomeDono}</CarOwner>
             <CarType>
-              {horaEntrada} - {horaSaida}
+              {horaEntrada} - {horaSaidaFormatada}
             </CarType>
           </CarRight>
         </CarInfo>

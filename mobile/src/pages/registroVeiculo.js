@@ -9,9 +9,11 @@ import {
 	ButtonGradient,
 	ButtonText,
 	TopSection,
-	BottomSection
+	BottomSection,
+	BoldText,
 } from "../styles";
 import { useFonts, Saira_700Bold } from "@expo-google-fonts/saira";
+import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ScrollView, Alert } from "react-native";
 import { getUsuario } from "../utils/getUsuario";
@@ -26,6 +28,9 @@ export default function RegistroVeiculo({ navigation }) {
 
 	const [fontsLoaded] = useFonts({
 		Saira_700Bold,
+		Montserrat_400Regular,
+		Montserrat_600SemiBold,
+		Montserrat_700Bold,
 	});
 
 	const handleRegistro = async () => {
@@ -51,19 +56,18 @@ export default function RegistroVeiculo({ navigation }) {
 		try {
 			const token = await AsyncStorage.getItem("token");
 
-			const response = await fetch("http://192.168.100.88:8080/veiculos", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${token}`,
-				},
-				body: JSON.stringify({
-					modelo,
-					placa,
-					cor,
-					usuarioId: usuario.id,
-				}),
-			});
+			const response = await api.post("/veiculos", {
+				modelo,
+				placa,
+				cor,
+				usuarioId: usuario.id,
+			},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 
 			if (response.ok) {
 				alert("Veículo cadastrado com sucesso!");
@@ -77,14 +81,12 @@ export default function RegistroVeiculo({ navigation }) {
 		}
 	};
 
-
-
 	if (!fontsLoaded) return null;
 
 	return (
 		<Container>
 			<Content>
-
+				<BoldText>Registro de Veículo</BoldText>
 				<ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
 					<TopSection style={{ marginTop: 120 }}>
 						<FieldContainer style={{ width: "90%" }}>
