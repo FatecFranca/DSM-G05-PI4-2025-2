@@ -1,145 +1,212 @@
 import { useState } from "react";
 import {
-	Container,
-	Content,
-	FieldContainer,
-	Label,
-	Input,
-	Button,
-	ButtonGradient,
-	ButtonText,
-	TopSection,
-	BottomSection,
-	BoldText,
+  Container,
+  Content,
+  FieldContainer,
+  Label,
+  Input,
+  Button,
+  ButtonGradient,
+  ButtonText,
+  TopSection,
+  ScrollView,
+  BottomSection
 } from "../styles";
 import { useFonts, Saira_700Bold } from "@expo-google-fonts/saira";
-import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ScrollView, Alert } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
 import { getUsuario } from "../utils/getUsuario";
 import BottomNavCustom from "../components/BottomNavCustom";
 
 export default function RegistroVeiculo({ navigation }) {
-	const [modelo, setModelo] = useState("");
-	const [placa, setPlaca] = useState("");
-	const [cor, setCor] = useState("");
+  const [tipo, setTipo] = useState("morador");
+  const [currentPage, setCurrentPage] = useState("registroVeiculo");
 
-	const [currentPage, setCurrentPage] = useState("registroVeiculo");
+  const [nomeVisitante, setNomeVisitante] = useState("");
+  const [modelo, setModelo] = useState("");
+  const [placa, setPlaca] = useState("");
+  const [cor, setCor] = useState("");
 
-	const [fontsLoaded] = useFonts({
-		Saira_700Bold,
-		Montserrat_400Regular,
-		Montserrat_600SemiBold,
-		Montserrat_700Bold,
-	});
+  const [fontsLoaded] = useFonts({
+    Saira_700Bold,
+  });
 
-	const handleRegistro = async () => {
-		if (!modelo || !placa || !cor) {
-			alert("Preencha todos os campos.");
-			return;
-		}
+  const handleRegistro = async () => {
+    let body = {};
 
-		let usuario;
+    if (!modelo || !placa || !cor) {
+      alert("Preencha todos os campos.");
+      return;
+    }
 
-		try {
-			usuario = await getUsuario();
-			if (!usuario || !usuario.id) {
-				alert("Usuário não encontrado. Faça login novamente.");
-				return;
-			}
-		} catch (error) {
-			console.error(error);
-			alert("Falha ao recuperar usuário.");
-			return;
-		}
+    const token = await AsyncStorage.getItem("token");
 
-		try {
-			const token = await AsyncStorage.getItem("token");
+    if (tipo === "visitante") {
+      const visitantes = await fetch(
+        "http://192.168.100.88:8080/visitantes",
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).then(res => res.json());
 
-			const response = await api.post("/veiculos", {
-				modelo,
-				placa,
-				cor,
-				usuarioId: usuario.id,
-			},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
+      const visitanteEncontrado = visitantes.find(
+        (v) => v.documento === nomeVisitante
+      );
 
-			if (response.ok) {
-				alert("Veículo cadastrado com sucesso!");
-				navigation.navigate("veiculos");
-			} else {
-				alert("Erro ao cadastrar veículo.");
-			}
-		} catch (error) {
-			console.error(error);
-			alert("Erro de conexão com o servidor.");
-		}
-	};
+      if (!visitanteEncontrado) {
+        alert("Visitante não encontrado.");
+        return;
+      }
 
-	if (!fontsLoaded) return null;
+      body = {
+        modelo,
+        placa,
+        cor,
+        visitanteId: visitanteEncontrado.id
+      };
 
-	return (
-		<Container>
-			<Content>
-				<BoldText>Registro de Veículo</BoldText>
-				<ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-					<TopSection style={{ marginTop: 120 }}>
-						<FieldContainer style={{ width: "90%" }}>
-							<Label style={{ color: "#1A1A1A" }}>Modelo do Veículo</Label>
-							<Input
-								placeholder="Modelo"
-								placeholderTextColor="#BBBBBB"
-								value={modelo}
-								onChangeText={setModelo}
-								style={{ fontSize: 16 }}
-							/>
-						</FieldContainer>
+    } else {
+      const usuario = await getUsuario();
 
-						<FieldContainer style={{ width: "90%" }}>
-							<Label style={{ color: "#1A1A1A" }}>Placa do Veículo</Label>
-							<Input
-								placeholder="Placa"
-								placeholderTextColor="#BBBBBB"
-								value={placa}
-								onChangeText={setPlaca}
-								style={{ fontSize: 16 }}
-							/>
-						</FieldContainer>
+      if (!usuario?.id) {
+        alert("Usuário não encontrado.");
+        return;
+      }
 
-						<FieldContainer style={{ width: "90%" }}>
-							<Label style={{ color: "#1A1A1A" }}>Cor do Veículo</Label>
-							<Input
-								placeholder="Cor"
-								placeholderTextColor="#BBBBBB"
-								value={cor}
-								onChangeText={setCor}
-								style={{ fontSize: 16 }}
-							/>
-						</FieldContainer>
-					</TopSection>
+      body = {
+        modelo,
+        placa,
+        cor,
+        usuarioId: usuario.id
+      };
+    }
 
-					<BottomSection style={{ marginTop: 20 }}>
-						<Button onPress={handleRegistro}>
-							<ButtonGradient
-								colors={["#969BFF", "#656CEE"]}
-								start={{ x: 1, y: 0 }}
-								end={{ x: 0, y: 1 }}
-							>
-								<ButtonText>Cadastrar</ButtonText>
-							</ButtonGradient>
-						</Button>
-					</BottomSection>
-				</ScrollView>
-			</Content>
-			<BottomNavCustom
-				currentPage={currentPage}
-				setCurrentPage={setCurrentPage}
-			/>
-		</Container>
-	);
+    const url = "http://192.168.100.88:8080/veiculos";
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (response.ok) {
+      alert("Cadastro realizado com sucesso!");
+      navigation.navigate("veiculos");
+    } else {
+      alert("Erro ao cadastrar veículo.");
+    }
+  };
+
+  if (!fontsLoaded) return null;
+
+  return (
+    <Container>
+      <Content>
+        <ScrollView>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 40,
+              marginBottom: 20,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setTipo("morador")}
+              style={{
+                padding: 10,
+                paddingHorizontal: 20,
+                borderRadius: 20,
+                backgroundColor: tipo === "morador" ? "#656CEE" : "#DDD",
+                marginRight: 10,
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Morador</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setTipo("visitante")}
+              style={{
+                padding: 10,
+                paddingHorizontal: 20,
+                borderRadius: 20,
+                backgroundColor: tipo === "visitante" ? "#656CEE" : "#DDD",
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Visitante</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TopSection style={{ marginTop: 20 }}>
+
+            {tipo === "visitante" && (
+              <FieldContainer>
+                <Label>Documento do Visitante</Label>
+                <Input
+                  placeholder="Documento (CPF ou RG)"
+                  placeholderTextColor="#BBBBBB"
+                  value={nomeVisitante}
+                  onChangeText={setNomeVisitante}
+                />
+              </FieldContainer>
+            )}
+
+            <FieldContainer>
+              <Label>Modelo do Veículo</Label>
+              <Input
+                placeholder="Modelo"
+                placeholderTextColor="#BBBBBB"
+                value={modelo}
+                onChangeText={setModelo}
+              />
+            </FieldContainer>
+
+            <FieldContainer>
+              <Label>Placa do Veículo</Label>
+              <Input
+                placeholder="Placa"
+                placeholderTextColor="#BBBBBB"
+                value={placa}
+                onChangeText={setPlaca}
+              />
+            </FieldContainer>
+
+            <FieldContainer>
+              <Label>Cor do Veículo</Label>
+              <Input
+                placeholder="Cor"
+                placeholderTextColor="#BBBBBB"
+                value={cor}
+                onChangeText={setCor}
+              />
+            </FieldContainer>
+
+          </TopSection>
+
+          <BottomSection>
+            <Button onPress={handleRegistro}>
+              <ButtonGradient
+                colors={["#969BFF", "#656CEE"]}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+              >
+                <ButtonText>
+                  Cadastrar Veículo
+                </ButtonText>
+              </ButtonGradient>
+            </Button>
+          </BottomSection>
+
+        </ScrollView>
+      </Content>
+
+      <BottomNavCustom
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
+
+    </Container>
+  );
 }

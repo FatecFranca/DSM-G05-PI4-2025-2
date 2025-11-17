@@ -11,7 +11,8 @@ export default function HeaderCustom({ navigation, route }) {
     detalhesVeiculo: "Detalhes do Veículo",
     login: "Login",
     cadastro: "Cadastro",
-    veiculos: "Veículos"
+    veiculos: "Veículos",
+    cadastroVisitante: "Cadastro de Visitante"
   };
 
   const currentPage = routeTitles[route.name] || route.name;

@@ -11,6 +11,7 @@ import Perfil from "./pages/perfil";
 import Veiculos from "./pages/veiculos";
 import Registros from "./pages/registros";
 import RegistroVeiculo from "./pages/registroVeiculo";
+import CadastroVisitante from "./pages/cadastroVisitante";
 import DetalhesVeiculo from "./pages/detalhesVeiculo";
 
 const Stack = createStackNavigator();
@@ -65,6 +66,13 @@ export default function Routes() {
         <Stack.Screen
           name="registroVeiculo"
           component={RegistroVeiculo}
+          options={{
+            header: (props) => <HeaderCustom {...props} />,
+          }}
+        />
+        <Stack.Screen
+          name="cadastroVisitante"
+          component={CadastroVisitante}
           options={{
             header: (props) => <HeaderCustom {...props} />,
           }}
