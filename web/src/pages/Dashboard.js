@@ -99,6 +99,7 @@ const Dashboard = () => {
             assimetria: 0,
             curtose: 0,
             "probabilidade_>90min": 0,
+            regressao: "Dados insuficientes para regressão.",
             registros: records,
             semDados: true
           });
@@ -120,6 +121,7 @@ const Dashboard = () => {
             assimetria: 0,
             curtose: 0,
             "probabilidade_>90min": 0,
+            regressao: "Dados insuficientes para regressão.",
             registros: records,
             erro: stats.erro
           });
@@ -137,6 +139,7 @@ const Dashboard = () => {
           assimetria: 0,
           curtose: 0,
           "probabilidade_>90min": 0,
+          regressao: "Dados insuficientes para regressão.",
           registros: [],
           erro: error.response?.data?.erro || error.message || 'Erro ao carregar estatísticas'
         });
@@ -235,14 +238,31 @@ const Dashboard = () => {
   const semDados = statistics.semDados || statistics.erro || 
     (statistics.registros && statistics.registros.length === 0);
 
+  // Função auxiliar para formatar valores numéricos
+  const formatValue = (value) => {
+    if (value === null || value === undefined) return '-';
+    return typeof value === 'number' ? value.toFixed(2) : value;
+  };
+
+  // Função auxiliar para obter o valor da regressão
+  const getRegressaoValue = () => {
+    if (!statistics.regressao) return '-';
+    if (typeof statistics.regressao === 'string') return '-';
+    if (statistics.regressao.intercepto !== undefined) {
+      return `${formatValue(statistics.regressao.intercepto)} min`;
+    }
+    return '-';
+  };
+
   const stats = [
-    ['Média', `${statistics.media || 0} min`],
-    ['Mediana', `${statistics.mediana || 0} min`],
-    ['Moda', `${statistics.moda || 0} min`],
-    ['Desvio Padrão', `${statistics.desvio_padrao || 0} min`],
-    ['Assimetria', statistics.assimetria || 0],
-    ['Curtose', statistics.curtose || 0],
-    ['Prob. > 90 min', `${statistics['probabilidade_>90min'] || 0}%`],
+    ['Média', `${formatValue(statistics.media)} min`],
+    ['Mediana', `${formatValue(statistics.mediana)} min`],
+    ['Moda', `${formatValue(statistics.moda)} min`],
+    ['Desvio Padrão', `${formatValue(statistics.desvio_padrao)} min`],
+    ['Assimetria', formatValue(statistics.assimetria)],
+    ['Curtose', formatValue(statistics.curtose)],
+    ['Probabilidade > 90 min', `${formatValue(statistics['probabilidade_>90min'])}%`],
+    ['Tempo médio previsto', getRegressaoValue()],
   ];
 
   return (

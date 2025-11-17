@@ -158,7 +158,19 @@ const Register = () => {
       navigate('/login');
     } catch (error) {
       console.error('Erro no cadastro:', error);
-      const errorMessage = error.response?.data?.err || error.response?.data?.error || error.message || 'Erro ao cadastrar usuário';
+      
+      let errorMessage = 'Erro ao cadastrar usuário';
+      
+      if (error.code === 'ECONNABORTED' || error.message === 'Network Error' || !error.response) {
+        // Network error - servidor não está acessível
+        errorMessage = 'Erro de conexão: Não foi possível conectar ao servidor. Verifique se o servidor está rodando e se a URL da API está correta.';
+      } else if (error.response) {
+        // Erro com resposta do servidor
+        errorMessage = error.response?.data?.err || error.response?.data?.error || error.response?.data?.message || `Erro ${error.response.status}: ${error.response.statusText}`;
+      } else {
+        errorMessage = error.message || 'Erro desconhecido ao cadastrar usuário';
+      }
+      
       alert(errorMessage);
     } finally {
       setLoading(false);
