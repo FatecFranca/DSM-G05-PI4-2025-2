@@ -31,7 +31,12 @@ export default function DetalhesVeiculo({ route }) {
 
           <Field>
             <Label>Proprietário</Label>
-            <Value>{veiculo.usuario?.nome || veiculo.visitante?.nome}</Value>
+            <Value>
+              {veiculo.usuario
+                ? `${veiculo.usuario.nome} (Morador)`
+                : `${veiculo.visitante?.nome} (Visitante)`
+              }
+            </Value>
           </Field>
         </Content>
 
