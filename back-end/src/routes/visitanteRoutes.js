@@ -5,7 +5,7 @@ import { authMiddleware, authorize } from "../middlewares/auth.js";
 const router = express.Router();
 
 router.post("/", controller.create);
-router.get("/", authMiddleware, authorize(["PORTEIRO", "ADMIN"]), controller.retrieveAll);
+router.get("/", authMiddleware, controller.retrieveAll);
 router.get("/:id", authMiddleware, controller.retrieveOne);
 router.patch("/:id", authMiddleware, controller.update);
 router.delete("/:id", authMiddleware, controller.delete);
