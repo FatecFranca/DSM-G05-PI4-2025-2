@@ -10,13 +10,14 @@ import {
   ButtonText,
   TopSection,
   ScrollView,
-  BottomSection
+  BottomSection,
 } from "../styles";
 import { useFonts, Saira_700Bold } from "@expo-google-fonts/saira";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity, View, Text } from "react-native";
 import { getUsuario } from "../utils/getUsuario";
 import BottomNavCustom from "../components/BottomNavCustom";
+import api from "../services/api";
 
 export default function RegistroVeiculo({ navigation }) {
   const [tipo, setTipo] = useState("morador");
@@ -31,70 +32,108 @@ export default function RegistroVeiculo({ navigation }) {
     Saira_700Bold,
   });
 
-  const handleRegistro = async () => {
-    let body = {};
+  const normalizeVisitantes = (parsed) => {
+    if (!parsed) return [];
+    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed.data)) return parsed.data;
+    if (Array.isArray(parsed.visitantes)) return parsed.visitantes;
 
-    if (!modelo || !placa || !cor) {
+    const firstArray = Object.values(parsed).find((v) => Array.isArray(v));
+    if (Array.isArray(firstArray)) return firstArray;
+
+    return [];
+  };
+
+  const handleRegistro = async () => {
+    if (!modelo.trim() || !placa.trim() || !cor.trim()) {
       alert("Preencha todos os campos.");
       return;
     }
 
     const token = await AsyncStorage.getItem("token");
-
-    if (tipo === "visitante") {
-      const visitantes = await fetch(
-        "http://192.168.100.88:8080/visitantes",
-        { headers: { Authorization: `Bearer ${token}` } }
-      ).then(res => res.json());
-
-      const visitanteEncontrado = visitantes.find(
-        (v) => v.documento === nomeVisitante
-      );
-
-      if (!visitanteEncontrado) {
-        alert("Visitante não encontrado.");
-        return;
-      }
-
-      body = {
-        modelo,
-        placa,
-        cor,
-        visitanteId: visitanteEncontrado.id
-      };
-
-    } else {
-      const usuario = await getUsuario();
-
-      if (!usuario?.id) {
-        alert("Usuário não encontrado.");
-        return;
-      }
-
-      body = {
-        modelo,
-        placa,
-        cor,
-        usuarioId: usuario.id
-      };
+    if (!token) {
+      alert("Token não encontrado. Faça login novamente.");
+      return;
     }
 
-    const url = "http://192.168.100.88:8080/veiculos";
+    let body = {};
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(body)
-    });
+    try {
+      if (tipo === "visitante") {
+        if (!nomeVisitante.trim()) {
+          alert("Digite o documento ou nome do visitante.");
+          return;
+        }
 
-    if (response.ok) {
+        const res = await api.get("/visitantes", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const parsed = res.data;
+        const visitantes = normalizeVisitantes(parsed);
+
+        if (!visitantes.length) {
+          alert("Nenhum visitante cadastrado foi encontrado.");
+          return;
+        }
+
+        const documentoBusca = nomeVisitante.replace(/\D/g, "");
+
+        const visitanteEncontrado = visitantes.find((v) => {
+          const documentoV = (v.documento || "")
+            .toString()
+            .replace(/\D/g, "");
+
+          const nomeV = (v.nome || "").toLowerCase();
+
+          return (
+            documentoBusca === documentoV ||
+            nomeVisitante.toLowerCase() === nomeV
+          );
+        });
+
+        if (!visitanteEncontrado) {
+          alert("Visitante não encontrado. Verifique o documento ou nome.");
+          return;
+        }
+
+        body = {
+          modelo: modelo.trim(),
+          placa: placa.trim().toUpperCase(),
+          cor: cor.trim(),
+          visitanteId: visitanteEncontrado.id,
+        };
+      } else {
+        const usuario = await getUsuario();
+
+        if (!usuario?.id) {
+          alert("Usuário não encontrado.");
+          return;
+        }
+
+        body = {
+          modelo: modelo.trim(),
+          placa: placa.trim().toUpperCase(),
+          cor: cor.trim(),
+          usuarioId: usuario.id,
+        };
+      }
+
+      await api.post("/veiculos", body, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       alert("Cadastro realizado com sucesso!");
       navigation.navigate("veiculos");
-    } else {
-      alert("Erro ao cadastrar veículo.");
+
+    } catch (error) {
+      console.error("Erro inesperado em handleRegistro:", error);
+
+      if (error.response?.data?.message) {
+        alert("Erro: " + error.response.data.message);
+      } else {
+        alert("Erro inesperado. Veja o console.");
+      }
     }
   };
 
@@ -104,7 +143,6 @@ export default function RegistroVeiculo({ navigation }) {
     <Container>
       <Content>
         <ScrollView>
-
           <View
             style={{
               flexDirection: "row",
@@ -140,12 +178,11 @@ export default function RegistroVeiculo({ navigation }) {
           </View>
 
           <TopSection style={{ marginTop: 20 }}>
-
             {tipo === "visitante" && (
               <FieldContainer>
-                <Label>Documento do Visitante</Label>
+                <Label>Documento ou Nome do Visitante</Label>
                 <Input
-                  placeholder="Documento (CPF ou RG)"
+                  placeholder="CPF, RG ou Nome"
                   placeholderTextColor="#BBBBBB"
                   value={nomeVisitante}
                   onChangeText={setNomeVisitante}
@@ -170,6 +207,7 @@ export default function RegistroVeiculo({ navigation }) {
                 placeholderTextColor="#BBBBBB"
                 value={placa}
                 onChangeText={setPlaca}
+                autoCapitalize="characters"
               />
             </FieldContainer>
 
@@ -182,7 +220,6 @@ export default function RegistroVeiculo({ navigation }) {
                 onChangeText={setCor}
               />
             </FieldContainer>
-
           </TopSection>
 
           <BottomSection>
@@ -192,13 +229,10 @@ export default function RegistroVeiculo({ navigation }) {
                 start={{ x: 1, y: 0 }}
                 end={{ x: 0, y: 1 }}
               >
-                <ButtonText>
-                  Cadastrar Veículo
-                </ButtonText>
+                <ButtonText>Cadastrar Veículo</ButtonText>
               </ButtonGradient>
             </Button>
           </BottomSection>
-
         </ScrollView>
       </Content>
 
@@ -206,7 +240,6 @@ export default function RegistroVeiculo({ navigation }) {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
-
     </Container>
   );
 }
