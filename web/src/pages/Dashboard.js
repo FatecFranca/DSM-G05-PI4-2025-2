@@ -171,11 +171,34 @@ const Dashboard = () => {
         quantidade: horasCount[hora]
       }));
 
+    // Calcular entradas por período do dia
+    const periodosCount = {
+      'Manhã': 0,
+      'Tarde': 0,
+      'Noite': 0,
+      'Madrugada': 0
+    };
+
+    registros.forEach(record => {
+      if (record.horaEntrada) {
+        const hora = new Date(record.horaEntrada).getHours();
+        if (hora >= 6 && hora < 12) {
+          periodosCount['Manhã']++;
+        } else if (hora >= 12 && hora < 18) {
+          periodosCount['Tarde']++;
+        } else if (hora >= 18 && hora < 24) {
+          periodosCount['Noite']++;
+        } else {
+          periodosCount['Madrugada']++;
+        }
+      }
+    });
+
     const lineData = [
-      { periodo: 'Manhã', entradas: 12 },
-      { periodo: 'Tarde', entradas: 25 },
-      { periodo: 'Noite', entradas: 18 },
-      { periodo: 'Madrugada', entradas: 5 }
+      { periodo: 'Manhã', entradas: periodosCount['Manhã'] },
+      { periodo: 'Tarde', entradas: periodosCount['Tarde'] },
+      { periodo: 'Noite', entradas: periodosCount['Noite'] },
+      { periodo: 'Madrugada', entradas: periodosCount['Madrugada'] }
     ];
 
     const registrosCompletos = registros.filter(r => r.horaEntrada && r.horaSaida);
