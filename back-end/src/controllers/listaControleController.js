@@ -4,7 +4,7 @@ const controller = {};
 
 controller.registrarEntrada = async function (req, res) {
   try {
-    const { placa, tipo, motivo } = req.body;
+    const { placa, motivo } = req.body;
 
     const veiculo = await prisma.veiculo.findUnique({
       where: { placa }
