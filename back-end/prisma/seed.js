@@ -3,6 +3,10 @@ import { TipoUsuario } from "@prisma/client";
 
 
 async function main() {
+  await prisma.listaControle.deleteMany();
+  await prisma.veiculo.deleteMany();
+  await prisma.visitante.deleteMany();
+  await prisma.usuario.deleteMany();
   console.log("🌱 Iniciando seed...");
 
   // -------------------------
@@ -163,8 +167,7 @@ async function main() {
     data: {
       placa: carroVisitanteB.placa,
       motivo: "Visita a Gustavo",
-      veiculoId: carroVisitanteB.id,
-      horaSaida: new Date(),
+      veiculoId: carroVisitanteB.id
     },
   });
 
@@ -499,7 +502,6 @@ async function main() {
       placa: carroVisitanteE.placa,
       motivo: "Visita a Ana",
       veiculoId: carroVisitanteE.id,
-      horaSaida: new Date(),
     },
   });
 
@@ -524,7 +526,6 @@ async function main() {
       placa: carroVisitanteH.placa,
       motivo: "Visita a Pedro",
       veiculoId: carroVisitanteH.id,
-      horaSaida: new Date(),
     },
   });
 
@@ -573,7 +574,6 @@ async function main() {
       placa: motoGustavo.placa,
       motivo: "Entrada de morador",
       veiculoId: motoGustavo.id,
-      horaSaida: new Date(),
     },
   });
 
