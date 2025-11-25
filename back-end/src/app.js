@@ -26,7 +26,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.post("/estatisticas", (req, res) => {
   try {
-    const py = spawn("python", ["./python/estatisticas.py"]);
+    const py = spawn("python3", ["./python/estatisticas.py"]);
 
     let dataString = "";
     let errorString = "";
