@@ -1,6 +1,22 @@
 import prisma from "../src/database/client.js";
 import { TipoUsuario } from "@prisma/client";
 
+// Função para gerar uma data aleatória entre min e max horas atrás
+function getRandomDate(minHoursAgo, maxHoursAgo) {
+  const now = new Date();
+  const minMs = minHoursAgo * 60 * 60 * 1000;
+  const maxMs = maxHoursAgo * 60 * 60 * 1000;
+  const randomMs = Math.random() * (maxMs - minMs) + minMs;
+  return new Date(now.getTime() - randomMs);
+}
+
+// Função para gerar uma data futura baseada em uma data base (para horaSaida)
+function getRandomFutureDate(baseDate, minHoursLater, maxHoursLater) {
+  const minMs = minHoursLater * 60 * 60 * 1000;
+  const maxMs = maxHoursLater * 60 * 60 * 1000;
+  const randomMs = Math.random() * (maxMs - minMs) + minMs;
+  return new Date(baseDate.getTime() + randomMs);
+}
 
 async function main() {
   await prisma.listaControle.deleteMany();
@@ -147,27 +163,42 @@ async function main() {
   // -------------------------
   // Registros em lista de controle
   // -------------------------
+  const horaEntrada1 = getRandomDate(2, 24); // 2 a 24 horas atrás
+  const horaSaida1 = getRandomFutureDate(horaEntrada1, 1, 4); // 1 a 4 horas depois
+  
   await prisma.listaControle.create({
     data: {
       placa: carroLivia.placa,
       motivo: "Entrada de morador",
       veiculoId: carroLivia.id,
+      horaEntrada: horaEntrada1,
+      horaSaida: horaSaida1,
     },
   });
 
+  const horaEntrada2 = getRandomDate(1, 12); // 1 a 12 horas atrás
+  const horaSaida2 = getRandomFutureDate(horaEntrada2, 0.5, 3); // 30 min a 3 horas depois
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteA.placa,
       motivo: "Visita para Livia",
       veiculoId: carroVisitanteA.id,
+      horaEntrada: horaEntrada2,
+      horaSaida: horaSaida2,
     },
   });
 
+  const horaEntrada3 = getRandomDate(6, 48); // 6 a 48 horas atrás
+  const horaSaida3 = getRandomFutureDate(horaEntrada3, 2, 6); // 2 a 6 horas depois
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteB.placa,
       motivo: "Visita a Gustavo",
-      veiculoId: carroVisitanteB.id
+      veiculoId: carroVisitanteB.id,
+      horaEntrada: horaEntrada3,
+      horaSaida: horaSaida3,
     },
   });
 
@@ -441,139 +472,218 @@ async function main() {
   // -------------------------
   // Mais Registros em Lista de Controle
   // -------------------------
+  
+  // Alguns registros com horaSaida (já saíram)
+  const horaEntrada4 = getRandomDate(8, 72); // 8 a 72 horas atrás
+  const horaSaida4 = getRandomFutureDate(horaEntrada4, 3, 8);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroGustavo.placa,
       motivo: "Entrada de morador",
       veiculoId: carroGustavo.id,
+      horaEntrada: horaEntrada4,
+      horaSaida: horaSaida4,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada5 = getRandomDate(0.5, 4); // 30 min a 4 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroMaria.placa,
       motivo: "Entrada de morador",
       veiculoId: carroMaria.id,
+      horaEntrada: horaEntrada5,
     },
   });
 
+  const horaEntrada6 = getRandomDate(12, 96); // 12 a 96 horas atrás
+  const horaSaida6 = getRandomFutureDate(horaEntrada6, 4, 10);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroCarlos.placa,
       motivo: "Entrada de morador",
       veiculoId: carroCarlos.id,
+      horaEntrada: horaEntrada6,
+      horaSaida: horaSaida6,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada7 = getRandomDate(1, 6); // 1 a 6 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroAna.placa,
       motivo: "Entrada de morador",
       veiculoId: carroAna.id,
+      horaEntrada: horaEntrada7,
     },
   });
 
+  const horaEntrada8 = getRandomDate(4, 36); // 4 a 36 horas atrás
+  const horaSaida8 = getRandomFutureDate(horaEntrada8, 2, 5);
+  
   await prisma.listaControle.create({
     data: {
       placa: motoLivia.placa,
       motivo: "Entrada de morador",
       veiculoId: motoLivia.id,
+      horaEntrada: horaEntrada8,
+      horaSaida: horaSaida8,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada9 = getRandomDate(2, 8); // 2 a 8 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteC.placa,
       motivo: "Visita a Maria",
       veiculoId: carroVisitanteC.id,
+      horaEntrada: horaEntrada9,
     },
   });
 
+  const horaEntrada10 = getRandomDate(24, 168); // 1 a 7 dias atrás
+  const horaSaida10 = getRandomFutureDate(horaEntrada10, 1, 5);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteD.placa,
       motivo: "Visita a Carlos",
       veiculoId: carroVisitanteD.id,
+      horaEntrada: horaEntrada10,
+      horaSaida: horaSaida10,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada11 = getRandomDate(0.25, 2); // 15 min a 2 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteE.placa,
       motivo: "Visita a Ana",
       veiculoId: carroVisitanteE.id,
+      horaEntrada: horaEntrada11,
     },
   });
 
+  const horaEntrada12 = getRandomDate(3, 24); // 3 a 24 horas atrás
+  const horaSaida12 = getRandomFutureDate(horaEntrada12, 1, 4);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteF.placa,
       motivo: "Visita a Roberto",
       veiculoId: carroVisitanteF.id,
+      horaEntrada: horaEntrada12,
+      horaSaida: horaSaida12,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada13 = getRandomDate(1, 5); // 1 a 5 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteG.placa,
       motivo: "Visita a Juliana",
       veiculoId: carroVisitanteG.id,
+      horaEntrada: horaEntrada13,
     },
   });
 
+  const horaEntrada14 = getRandomDate(6, 48); // 6 a 48 horas atrás
+  const horaSaida14 = getRandomFutureDate(horaEntrada14, 2, 6);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteH.placa,
       motivo: "Visita a Pedro",
       veiculoId: carroVisitanteH.id,
+      horaEntrada: horaEntrada14,
+      horaSaida: horaSaida14,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada15 = getRandomDate(0.5, 3); // 30 min a 3 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroVisitanteI.placa,
       motivo: "Visita a Lucas",
       veiculoId: carroVisitanteI.id,
+      horaEntrada: horaEntrada15,
     },
   });
 
+  const horaEntrada16 = getRandomDate(10, 120); // 10 a 120 horas atrás
+  const horaSaida16 = getRandomFutureDate(horaEntrada16, 5, 12);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroRoberto.placa,
       motivo: "Entrada de morador",
       veiculoId: carroRoberto.id,
+      horaEntrada: horaEntrada16,
+      horaSaida: horaSaida16,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada17 = getRandomDate(3, 10); // 3 a 10 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroJuliana.placa,
       motivo: "Entrada de morador",
       veiculoId: carroJuliana.id,
+      horaEntrada: horaEntrada17,
     },
   });
 
+  const horaEntrada18 = getRandomDate(18, 144); // 18 a 144 horas atrás
+  const horaSaida18 = getRandomFutureDate(horaEntrada18, 6, 15);
+  
   await prisma.listaControle.create({
     data: {
       placa: carroPedro.placa,
       motivo: "Entrada de morador",
       veiculoId: carroPedro.id,
+      horaEntrada: horaEntrada18,
+      horaSaida: horaSaida18,
     },
   });
 
+  // Registro sem horaSaida (ainda dentro)
+  const horaEntrada19 = getRandomDate(2, 7); // 2 a 7 horas atrás
+  
   await prisma.listaControle.create({
     data: {
       placa: carroLucas.placa,
       motivo: "Entrada de morador",
       veiculoId: carroLucas.id,
+      horaEntrada: horaEntrada19,
     },
   });
 
+  const horaEntrada20 = getRandomDate(5, 60); // 5 a 60 horas atrás
+  const horaSaida20 = getRandomFutureDate(horaEntrada20, 1, 3);
+  
   await prisma.listaControle.create({
     data: {
       placa: motoGustavo.placa,
       motivo: "Entrada de morador",
       veiculoId: motoGustavo.id,
+      horaEntrada: horaEntrada20,
+      horaSaida: horaSaida20,
     },
   });
 
