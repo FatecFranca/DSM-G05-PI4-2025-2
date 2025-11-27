@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { vehicleService } from '../services/vehicles.js';
+import { visitorService } from '../services/visitors.js';
 import { useAuth } from '../contexts/AuthContext.js';
 
 const Container = styled.div`
@@ -97,6 +98,28 @@ const VehicleInfo = styled.div`
   align-items: flex-end;
 `;
 
+const DeleteButton = styled.button`
+  background-color: #dc3545;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: white;
+  font-family: ${({ theme }) => theme.fonts.montserrat.semibold};
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 const Loading = styled.div`
   display: flex;
   justify-content: center;
@@ -109,6 +132,7 @@ const Loading = styled.div`
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState({});
   const { user } = useAuth();
 
   useEffect(() => {
@@ -117,10 +141,11 @@ const Vehicles = () => {
         const allVehicles = await vehicleService.getAll();
         
         let filteredVehicles = allVehicles;
-        // MORADOR vê seus próprios veículos E veículos de visitantes
+        // MORADOR vê apenas seus próprios veículos E veículos de visitantes que ele cadastrou
         if (user?.tipo === 'MORADOR') {
           filteredVehicles = allVehicles.filter(vehicle => 
-            vehicle.usuario?.id === user.id || vehicle.visitante !== null
+            vehicle.usuario?.id === user.id || 
+            (vehicle.visitante !== null && (vehicle.visitante?.usuarioId === user.id || vehicle.visitante?.usuario?.id === user.id))
           );
         }
         // PORTEIRO e ADMIN veem todos os veículos
@@ -135,6 +160,57 @@ const Vehicles = () => {
 
     fetchVehicles();
   }, [user]);
+
+  const canDeleteVehicle = (vehicle) => {
+    // Porteiros podem deletar qualquer veículo
+    if (user?.tipo === 'PORTEIRO' || user?.tipo === 'ADMIN') {
+      return true;
+    }
+    // Usuários podem deletar apenas seus próprios veículos ou veículos de visitantes que cadastraram
+    if (user?.tipo === 'MORADOR') {
+      return vehicle.usuario?.id === user.id || 
+             (vehicle.visitante !== null && (vehicle.visitante?.usuarioId === user.id || vehicle.visitante?.usuario?.id === user.id));
+    }
+    return false;
+  };
+
+  const handleDelete = async (vehicle) => {
+    const isVisitanteVehicle = vehicle.visitante !== null;
+    const confirmMessage = isVisitanteVehicle
+      ? `Tem certeza que deseja deletar este veículo? O visitante "${vehicle.visitante.nome}" e todos os seus veículos também serão removidos.`
+      : 'Tem certeza que deseja deletar este veículo?';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setDeleting(prev => ({ ...prev, [vehicle.id]: true }));
+    try {
+      // Se for veículo de visitante, deletar o visitante (que vai deletar todos os veículos em cascata)
+      if (isVisitanteVehicle && vehicle.visitante?.id) {
+        await visitorService.delete(vehicle.visitante.id);
+      } else {
+        // Se for veículo de morador, deletar apenas o veículo
+        await vehicleService.delete(vehicle.id);
+      }
+      
+      // Recarregar a lista de veículos
+      const allVehicles = await vehicleService.getAll();
+      let filteredVehicles = allVehicles;
+      if (user?.tipo === 'MORADOR') {
+        filteredVehicles = allVehicles.filter(v => 
+          v.usuario?.id === user.id || 
+          (v.visitante !== null && (v.visitante?.usuarioId === user.id || v.visitante?.usuario?.id === user.id))
+        );
+      }
+      setVehicles(filteredVehicles);
+    } catch (error) {
+      console.error('Erro ao deletar veículo:', error);
+      alert('Erro ao deletar veículo. Tente novamente.');
+    } finally {
+      setDeleting(prev => ({ ...prev, [vehicle.id]: false }));
+    }
+  };
 
   if (loading) {
     return (
@@ -176,6 +252,14 @@ const Vehicles = () => {
                         ? vehicle.usuario.nome
                         : 'Sem proprietário'}
                     </VehicleOwner>
+                    {canDeleteVehicle(vehicle) && (
+                      <DeleteButton
+                        onClick={() => handleDelete(vehicle)}
+                        disabled={deleting[vehicle.id]}
+                      >
+                        {deleting[vehicle.id] ? 'Deletando...' : 'Deletar'}
+                      </DeleteButton>
+                    )}
                   </VehicleInfo>
                 </VehicleRight>
               </VehicleCard>

@@ -152,10 +152,11 @@ const Dashboard = () => {
   }, []);
 
   const prepareChartData = () => {
-    if (!statistics?.registros) return { barData: [], lineData: [], distributionData: [] };
+    if (!statistics?.registros) return { barData: [], tempoMedioData: [], entradasPorDiaData: [] };
 
     const registros = statistics.registros;
     
+    // Entradas por hora do dia (mantém igual)
     const horasCount = {};
     registros.forEach(record => {
       if (record.horaEntrada) {
@@ -171,68 +172,64 @@ const Dashboard = () => {
         quantidade: horasCount[hora]
       }));
 
-    // Calcular entradas por período do dia
-    const periodosCount = {
-      'Manhã': 0,
-      'Tarde': 0,
-      'Noite': 0,
-      'Madrugada': 0
-    };
+    // Tempo Médio de Permanência por Intervalo de 2h (min) - igual ao mobile
+    const registrosCompletos = registros.filter(r => r.horaEntrada && r.horaSaida);
+    const temposPorIntervalo = {};
 
+    registrosCompletos.forEach(record => {
+      const entrada = new Date(record.horaEntrada);
+      const saida = new Date(record.horaSaida);
+      if (!isNaN(entrada) && !isNaN(saida)) {
+        const hora = entrada.getHours();
+        const tempo = (saida - entrada) / 60000; // tempo em minutos
+        const intervalo = Math.floor(hora / 2) * 2; // agrupa em intervalos de 2h
+        if (!temposPorIntervalo[intervalo]) {
+          temposPorIntervalo[intervalo] = [];
+        }
+        temposPorIntervalo[intervalo].push(tempo);
+      }
+    });
+
+    const intervalosComDados = Object.keys(temposPorIntervalo)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    const tempoMedioData = intervalosComDados.map(intervalo => {
+      const tempos = temposPorIntervalo[intervalo];
+      const tempoMedio = Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length);
+      return {
+        intervalo: `${intervalo}-${intervalo + 2}h`,
+        tempoMedio: tempoMedio
+      };
+    });
+
+    // Entradas por Dia - igual ao mobile
+    const entradasPorDia = {};
     registros.forEach(record => {
       if (record.horaEntrada) {
-        const hora = new Date(record.horaEntrada).getHours();
-        if (hora >= 6 && hora < 12) {
-          periodosCount['Manhã']++;
-        } else if (hora >= 12 && hora < 18) {
-          periodosCount['Tarde']++;
-        } else if (hora >= 18 && hora < 24) {
-          periodosCount['Noite']++;
-        } else {
-          periodosCount['Madrugada']++;
+        const data = new Date(record.horaEntrada);
+        if (!isNaN(data)) {
+          const dia = data.toISOString().split("T")[0]; // formato YYYY-MM-DD
+          entradasPorDia[dia] = (entradasPorDia[dia] || 0) + 1;
         }
       }
     });
 
-    const lineData = [
-      { periodo: 'Manhã', entradas: periodosCount['Manhã'] },
-      { periodo: 'Tarde', entradas: periodosCount['Tarde'] },
-      { periodo: 'Noite', entradas: periodosCount['Noite'] },
-      { periodo: 'Madrugada', entradas: periodosCount['Madrugada'] }
-    ];
-
-    const registrosCompletos = registros.filter(r => r.horaEntrada && r.horaSaida);
-    const tempos = registrosCompletos.map(r => {
-      const entrada = new Date(r.horaEntrada);
-      const saida = new Date(r.horaSaida);
-      return (saida - entrada) / (1000 * 60);
+    const diasOrdenados = Object.keys(entradasPorDia).sort();
+    const entradasPorDiaData = diasOrdenados.map(dia => {
+      // Formatar data para exibição (DD/MM)
+      const [ano, mes, diaNum] = dia.split('-');
+      return {
+        dia: `${diaNum}/${mes}`,
+        dataCompleta: dia,
+        entradas: entradasPorDia[dia]
+      };
     });
 
-    const distributionData = [];
-    if (tempos.length > 0) {
-      const intervalos = [
-        { label: '0-15 min', min: 0, max: 15 },
-        { label: '15-30 min', min: 15, max: 30 },
-        { label: '30-45 min', min: 30, max: 45 },
-        { label: '45-60 min', min: 45, max: 60 },
-        { label: '60-90 min', min: 60, max: 90 },
-        { label: '90+ min', min: 90, max: Infinity }
-      ];
-
-      intervalos.forEach(intervalo => {
-        const count = tempos.filter(t => t >= intervalo.min && t < intervalo.max).length;
-        distributionData.push({
-          intervalo: intervalo.label,
-          quantidade: count,
-          percentual: tempos.length > 0 ? ((count / tempos.length) * 100).toFixed(1) : 0
-        });
-      });
-    }
-
-    return { barData, lineData, distributionData };
+    return { barData, tempoMedioData, entradasPorDiaData };
   };
 
-  const { barData, lineData, distributionData } = prepareChartData();
+  const { barData, tempoMedioData, entradasPorDiaData } = prepareChartData();
 
   if (loading) {
     return (
@@ -340,34 +337,27 @@ const Dashboard = () => {
             </ChartCard>
           )}
 
-          <ChartCard>
-            <ChartTitle>Tendência de Entradas por Período</ChartTitle>
-            <CustomLineChart 
-              data={lineData} 
-              dataKey="entradas" 
-              xAxisDataKey="periodo" 
-              color="#ff8b2d" 
-            />
-          </ChartCard>
-
-          {distributionData.length > 0 && (
+          {tempoMedioData.length > 0 && (
             <ChartCard>
-              <ChartTitle>Distribuição de Tempos de Permanência</ChartTitle>
+              <ChartTitle>Tempo Médio de Permanência por Intervalo de 2h (min)</ChartTitle>
               <CustomBarChart 
-                data={distributionData} 
-                dataKey="quantidade" 
+                data={tempoMedioData} 
+                dataKey="tempoMedio" 
                 xAxisDataKey="intervalo" 
-                color="#8b5cf6" 
+                color="#4050ff" 
               />
-              <div style={{ 
-                marginTop: '20px', 
-                textAlign: 'center', 
-                fontSize: '14px',
-                color: '#666',
-                fontFamily: 'Montserrat, sans-serif'
-              }}>
-                <p>Média: {statistics.media} min | Mediana: {statistics.mediana} min</p>
-              </div>
+            </ChartCard>
+          )}
+
+          {entradasPorDiaData.length > 0 && (
+            <ChartCard>
+              <ChartTitle>Entradas por Dia</ChartTitle>
+              <CustomLineChart 
+                data={entradasPorDiaData} 
+                dataKey="entradas" 
+                xAxisDataKey="dia" 
+                color="#4050ff" 
+              />
             </ChartCard>
           )}
         </ChartsSection>
