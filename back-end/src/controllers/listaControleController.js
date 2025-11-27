@@ -30,7 +30,6 @@ controller.registrarEntrada = async function (req, res) {
     const registro = await prisma.listaControle.create({
       data: {
         placa,
-        tipo,
         motivo,
         veiculoId: veiculo.id,
         horaEntrada: new Date()
